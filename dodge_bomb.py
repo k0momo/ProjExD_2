@@ -3,6 +3,7 @@ import sys
 import pygame as pg
 import random
 import time
+import math
 
 
 WIDTH, HEIGHT = 1100, 650
@@ -69,6 +70,21 @@ def get_kk_img(mv: tuple[int, int],
         return None
     best = max(dct.keys(), key=lambda v: v[0]*mv[0] + v[1]*mv[1])
     return dct[best]    
+
+#追加機能４
+def calc_orientation(org: pg.Rect, dst: pg.Rect,
+                     cur_v: tuple[int, int] = (0, 0)
+                    ) -> tuple[int, int]:
+    """
+    org(爆弾)→dst(こうかとん) への差ベクトルを長さ √50 に正規化。
+    距離が 300 未満なら cur_v をそのまま返し慣性を持たせる。
+    """
+    dx, dy = dst.centerx - org.centerx, dst.centery - org.centery
+    dist = math.hypot(dx, dy)
+    if dist < 300 or dist == 0:
+        return cur_v
+    scale = (50 ** 0.5) / dist
+    return (int(dx * scale), int(dy * scale))
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
