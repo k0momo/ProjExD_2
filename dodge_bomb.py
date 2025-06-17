@@ -120,9 +120,7 @@ def draw_timer(screen: pg.Surface, tmr: int) -> None:
         経過フレーム数（1 フレーム ≒ 0.02 秒）
     """
     font = pg.font.SysFont(None, 40)
-    # フレーム数を秒に換算（50 フレームで 1 秒）
     sec  = tmr // 50                 
-    # 秒数を描画
     txt  = font.render(f"Time: {sec}", True, (0, 0, 0))
     screen.blit(txt, (WIDTH - 150, 10))
 
