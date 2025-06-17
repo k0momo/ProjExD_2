@@ -70,27 +70,35 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
 # 追加機能3
 # こうかとん画像を8方向に対応させて辞書で返す関数
 def load_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
-    """8 方向ベクトルに対応するこうかとん画像 Surface を辞書で返す。"""
-    base = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
-    dct: dict[tuple[int, int], pg.Surface] = {(0, 0): base}
-    # このfor文は、8方向の角度とベクトルを対応させる。
-    # 90度、-90度、180度、45度、-45度、135度、-135度の角度で回転させた画像を作成
-    for ang, vec in zip((90, -90, 180, 45, -45, 135, -135),
-                        [(-5, 0), (5, 0), (0, 5), (-5, -5),
-                         (5, -5), (-5, 5), (5, 5)]):
-        dct[vec] = pg.transform.rotate(base, ang)
-    return dct
+    """
+    sum_mv=(dx,dy) の完全一致 9 パターン(停止＋8方向)をキーに、
+    その向きに回転＋必要に応じ水平反転したこうかとんSurfaceを返す辞書を作成。
+    """
+    # 1) 元画像を読み込む（→ 右向きが基準と想定）
+    orig = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    base = orig  # ※ もし元画像が左向きなら: base = pg.transform.flip(orig, True, False)
+
+    # 2) 静止＋8方向を手動でマッピング (angle: Pygame 回転は「正＝反時計回り」)
+    d: dict[tuple[int,int], pg.Surface] = {
+        ( 5,  0): base,                            # → 右向き
+        ( 5, -5): pg.transform.rotate(base,  45),  # ↗ 右上
+        ( 0, -5): pg.transform.rotate(base,  90),  # ↑ 上向き
+        (-5, -5): pg.transform.rotate(base, 135),  # ↖ 左上
+        (-5,  0): pg.transform.rotate(base, 180),  # ← 左向き
+        (-5,  5): pg.transform.rotate(base, -135), # ↙ 左下
+        ( 0,  5): pg.transform.rotate(base, -90),  # ↓ 下向き
+        ( 5,  5): pg.transform.rotate(base, -45),  # ↘ 右下
+        ( 0,  0): base,                            # 停止時
+    }
+    return d
 
 # 移動量 mv に最も近い方向のこうかとん画像を返す。
 def get_kk_img(mv: tuple[int, int],
                dct: dict[tuple[int, int], pg.Surface]
               ) -> pg.Surface | None:
     """移動量 mv に最も近い方向画像を返す。mv が (0,0) なら None。"""
-    if mv == (0, 0):
-        return None
-    # ベクトルの大きさを計算
-    best = max(dct.keys(), key=lambda v: v[0]*mv[0] + v[1]*mv[1])
-    return dct[best]    
+    # sum_mv が9パターンに完全一致すればその画像、違えば停止画像を返す
+    return dct.get(mv, dct[(0, 0)])
 
 #追加機能４
 # 爆弾の向きを計算し、長さ √50 に正規化したベクトルを返す。
@@ -160,14 +168,8 @@ def main() -> None:
     
     #追加機能３
     kk_imgs = load_kk_imgs()
-    kk_img = kk_imgs[(0, 0)]
-    kk_rct = kk_img.get_rect()
-    kk_rct.center = 300, 200
-      
-    # こうかとんの初期位置を設定  
-    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
-    kk_rct = kk_img.get_rect()
-    kk_rct.center = 300, 200
+    kk_img  = kk_imgs[(0, 0)]           
+    kk_rct  = kk_img.get_rect(center=(300, 200))
     #練習2
     #追加機能２
     bb_imgs, bb_accs = init_bb_imgs()
@@ -209,9 +211,9 @@ def main() -> None:
             
         # 追加機能3
         # 移動量に応じてこうかとんの画像を更新
-        new_img = get_kk_img(tuple(sum_mv), kk_imgs)
-        if new_img:
-            kk_img = new_img
+        key_vec = tuple(sum_mv)
+        if key_vec != (0, 0):
+            kk_img = get_kk_img(key_vec, kk_imgs)
             
         # 追加機能4
         # 爆弾の向きを計算し、長さ √50 に正規化
