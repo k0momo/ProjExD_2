@@ -27,18 +27,26 @@ def game_over(screen: pg.Surface, bg: pg.Surface, kk_gameover: pg.Surface) -> No
     """画面を半透明で暗転し、泣き顔こうかとんと
     “Game Over” を5秒間表示して終了する。"""
     ovl = pg.Surface((WIDTH, HEIGHT))
-    ovl.set_alpha(150)
+    ovl.set_alpha(180)
     ovl.fill((0, 0, 0))
     screen.blit(bg, (0, 0))
     screen.blit(ovl, (0, 0))
 
-    g_rct = kk_gameover.get_rect(center=(WIDTH//2, HEIGHT//2-40))
-    screen.blit(kk_gameover, g_rct)
-
-    font = pg.font.SysFont(None, 120)
-    txt = font.render("Game Over", True, (255, 0, 0))
-    txt_rct = txt.get_rect(center=(WIDTH//2, HEIGHT//2+120))
+    font = pg.font.SysFont(None, 64)
+    txt  = font.render("Game Over", True, (255, 255, 255))
+    txt_rct = txt.get_rect(center=(WIDTH // 2, HEIGHT // 2))
     screen.blit(txt, txt_rct)
+
+    margin = 140                        
+    y_pos  = txt_rct.centery            
+
+    left_rct = kk_gameover.get_rect(center=(txt_rct.left - margin, y_pos))
+    screen.blit(kk_gameover, left_rct)
+
+    right_img  = pg.transform.flip(kk_gameover, True, False)
+    right_rct  = right_img.get_rect(center=(txt_rct.right + margin, y_pos))
+    screen.blit(right_img, right_rct)
+        
     pg.display.update()
     time.sleep(5)
     
@@ -57,6 +65,7 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
 
 # 追加機能3
 def load_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
+    """8 方向ベクトルに対応するこうかとん画像 Surface を辞書で返す。"""
     base = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     dct: dict[tuple[int, int], pg.Surface] = {(0, 0): base}
     for ang, vec in zip((90, -90, 180, 45, -45, 135, -135),
@@ -68,6 +77,7 @@ def load_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
 def get_kk_img(mv: tuple[int, int],
                dct: dict[tuple[int, int], pg.Surface]
               ) -> pg.Surface | None:
+    """移動量 mv に最も近い方向画像を返す。mv が (0,0) なら None。"""
     if mv == (0, 0):
         return None
     best = max(dct.keys(), key=lambda v: v[0]*mv[0] + v[1]*mv[1])
@@ -96,7 +106,7 @@ def draw_timer(screen: pg.Surface, tmr: int) -> None:
         経過フレーム数（1 フレーム ≒ 0.02 秒）
     """
     font = pg.font.SysFont(None, 40)
-    sec  = tmr // 50                 # 50 FPS 想定 → 秒へ変換
+    sec  = tmr // 50                 
     txt  = font.render(f"Time: {sec}", True, (0, 0, 0))
     screen.blit(txt, (WIDTH - 150, 10))
 
@@ -106,7 +116,7 @@ def title_screen(screen: pg.Surface, bg: pg.Surface) -> None:
     起動時にタイトルを表示し、SPACE キーが押されるまで待機する。
     """
     font = pg.font.SysFont(None, 100)
-    msg  = font.render("Press SPACE to Start", True, (0, 0, 255))
+    msg  = font.render("Mr. Fushimi, press the SPACE!!", True, (0, 0, 255))
     msg_r = msg.get_rect(center=(WIDTH//2, HEIGHT//2))
     while True:
         for e in pg.event.get():
