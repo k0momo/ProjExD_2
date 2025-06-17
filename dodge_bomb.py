@@ -88,6 +88,18 @@ def calc_orientation(org: pg.Rect, dst: pg.Rect,
     scale = (50 ** 0.5) / dist
     return (int(dx * scale), int(dy * scale))
 
+#独自機能２
+def draw_timer(screen: pg.Surface, tmr: int) -> None:
+    """
+    生存フレーム tmr を秒換算し、右上に “Time: xx” と描画する。
+    tmr : int
+        経過フレーム数（1 フレーム ≒ 0.02 秒）
+    """
+    font = pg.font.SysFont(None, 40)
+    sec  = tmr // 50                 # 50 FPS 想定 → 秒へ変換
+    txt  = font.render(f"Time: {sec}", True, (0, 0, 0))
+    screen.blit(txt, (WIDTH - 150, 10))
+
 #独自機能１
 def title_screen(screen: pg.Surface, bg: pg.Surface) -> None:
     """
@@ -196,6 +208,8 @@ def main() -> None:
         screen.blit(kk_img, kk_rct)
         screen.blit(bb_img, bb_rct)
         
+        #独自機能２
+        draw_timer(screen, tmr)
         pg.display.update()
         tmr += 1
         clock.tick(50)
