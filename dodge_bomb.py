@@ -24,6 +24,8 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
 
 #追加機能1
 def game_over(screen: pg.Surface, bg: pg.Surface, kk_gameover: pg.Surface) -> None:
+    """画面を半透明で暗転し、泣き顔こうかとんと
+    “Game Over” を5秒間表示して終了する。"""
     ovl = pg.Surface((WIDTH, HEIGHT))
     ovl.set_alpha(150)
     ovl.fill((0, 0, 0))
@@ -86,10 +88,32 @@ def calc_orientation(org: pg.Rect, dst: pg.Rect,
     scale = (50 ** 0.5) / dist
     return (int(dx * scale), int(dy * scale))
 
-def main():
+#独自機能１
+def title_screen(screen: pg.Surface, bg: pg.Surface) -> None:
+    """
+    起動時にタイトルを表示し、SPACE キーが押されるまで待機する。
+    """
+    font = pg.font.SysFont(None, 100)
+    msg  = font.render("Press SPACE to Start", True, (0, 0, 255))
+    msg_r = msg.get_rect(center=(WIDTH//2, HEIGHT//2))
+    while True:
+        for e in pg.event.get():
+            if e.type == pg.QUIT:
+                pg.quit(); sys.exit()
+            if e.type == pg.KEYDOWN and e.key == pg.K_SPACE:
+                return                     
+        screen.blit(bg, (0, 0))
+        screen.blit(msg, msg_r)
+        pg.display.update()
+
+def main() -> None:
+    """ゲーム本体ループ。初期化後、60FPSで更新を続ける。"""
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")  
+    
+    #独自機能１
+    title_screen(screen, bg_img)
     
     #追加機能３
     kk_imgs = load_kk_imgs()
@@ -147,8 +171,10 @@ def main():
         #練習2
         bb_rct.move_ip(vx, vy)
         yoko, tate = check_bound(bb_rct)
-        if not yoko: vx *= -1
-        if not tate: vy *= -1
+        if not yoko: 
+            vx *= -1
+        if not tate: 
+            vy *= -1
         
         #追加機能２
         bb_idx = min(tmr // 500, 9)          
