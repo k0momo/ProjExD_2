@@ -10,6 +10,15 @@ DELTA = {pg.K_UP:(0, -5), pg.K_DOWN:(0,5), pg.K_LEFT:(-5,0), pg.K_RIGHT:(5,0)}
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+# 練習3
+def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
+    """
+    引数：obj_rct ...こうかとんRect または 爆弾Rect
+    戻り値：（横方向が画面内か、縦方向が画面内か）
+    """
+    yoko = 0 <= obj_rct.left and obj_rct.right <= WIDTH
+    tate = 0 <= obj_rct.top and obj_rct.bottom <= HEIGHT
+    return yoko, tate 
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -43,6 +52,10 @@ def main():
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
         kk_rct.move_ip(sum_mv)
+        # 練習3
+        yoko, tate = check_bound(kk_rct)
+        if not yoko: kk_rct.move_ip(-sum_mv[0], 0)
+        if not tate: kk_rct.move_ip(0, -sum_mv[1])
         
         #練習2
         bb_rct.move_ip(vx, vy)
