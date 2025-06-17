@@ -23,6 +23,7 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate 
 
 #追加機能1
+# ゲームオーバー画面を表示する関数
 def game_over(screen: pg.Surface, bg: pg.Surface, kk_gameover: pg.Surface) -> None:
     """画面を半透明で暗転し、泣き顔こうかとんと
     “Game Over” を5秒間表示して終了する。"""
@@ -50,6 +51,7 @@ def game_over(screen: pg.Surface, bg: pg.Surface, kk_gameover: pg.Surface) -> No
     time.sleep(5)
     
 #追加機能2
+# 爆弾画像と速度テーブルを初期化する関数
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """半径10→55 の10段階爆弾 Surface と速度テーブルを返す"""
     imgs, accs = [], []
@@ -63,6 +65,7 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     return imgs, accs
 
 # 追加機能3
+# こうかとん画像を8方向に対応させて辞書で返す関数
 def load_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
     """8 方向ベクトルに対応するこうかとん画像 Surface を辞書で返す。"""
     base = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
@@ -73,6 +76,7 @@ def load_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
         dct[vec] = pg.transform.rotate(base, ang)
     return dct
 
+# 移動量 mv に最も近い方向のこうかとん画像を返す。
 def get_kk_img(mv: tuple[int, int],
                dct: dict[tuple[int, int], pg.Surface]
               ) -> pg.Surface | None:
@@ -83,6 +87,7 @@ def get_kk_img(mv: tuple[int, int],
     return dct[best]    
 
 #追加機能４
+# 爆弾の向きを計算し、長さ √50 に正規化したベクトルを返す。
 def calc_orientation(org: pg.Rect, dst: pg.Rect,
                      cur_v: tuple[int, int] = (0, 0)
                     ) -> tuple[int, int]:
@@ -98,6 +103,7 @@ def calc_orientation(org: pg.Rect, dst: pg.Rect,
     return (int(dx * scale), int(dy * scale))
 
 #独自機能２
+# 生存フレーム数を秒換算して右上に描画する関数
 def draw_timer(screen: pg.Surface, tmr: int) -> None:
     """
     生存フレーム tmr を秒換算し、右上に “Time: xx” と描画する。
@@ -110,6 +116,7 @@ def draw_timer(screen: pg.Surface, tmr: int) -> None:
     screen.blit(txt, (WIDTH - 150, 10))
 
 #独自機能１
+# タイトル画面を表示し、SPACE キーが押されるまで待機する関数
 def title_screen(screen: pg.Surface, bg: pg.Surface) -> None:
     """
     起動時にタイトルを表示し、SPACE キーが押されるまで待機する。
@@ -175,6 +182,7 @@ def main() -> None:
                 sum_mv[1] += mv[1]
         kk_rct.move_ip(sum_mv)
         # 練習3
+        # 画面外に出ないように調整
         yoko, tate = check_bound(kk_rct)
         if not yoko: 
             kk_rct.move_ip(-sum_mv[0], 0)
@@ -187,6 +195,7 @@ def main() -> None:
             kk_img = new_img
             
         # 追加機能4
+        # 爆弾の向きを計算し、長さ √50 に正規化
         vx, vy = calc_orientation(bb_rct, kk_rct, (vx, vy))    
         
         #練習2
@@ -198,10 +207,12 @@ def main() -> None:
             vy *= -1
         
         #追加機能２
+        # 爆弾の半径に応じて画像と速度を選択
         bb_idx = min(tmr // 500, 9)          
         bb_img = bb_imgs[bb_idx]
         speed  = bb_accs[bb_idx]
 
+        # 爆弾の移動速度を正規化
         if vx or vy:
             scale = speed / math.hypot(vx, vy)
             vx, vy = int(vx*scale), int(vy*scale)
@@ -209,6 +220,7 @@ def main() -> None:
         bb_rct = bb_img.get_rect(center=bb_rct.center)
         
         # 練習4
+        # こうかとんと爆弾が衝突したらゲームオーバー
         if kk_rct.colliderect(bb_rct):
             # 追加機能1
             game_over(screen, bg_img, kk_cry)
@@ -218,6 +230,7 @@ def main() -> None:
         screen.blit(bb_img, bb_rct)
         
         #独自機能２
+        # 生存フレーム数を秒換算して右上に描画
         draw_timer(screen, tmr)
         pg.display.update()
         tmr += 1
