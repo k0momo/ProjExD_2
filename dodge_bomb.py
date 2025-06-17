@@ -115,8 +115,15 @@ def main():
         kk_rct.move_ip(sum_mv)
         # 練習3
         yoko, tate = check_bound(kk_rct)
-        if not yoko: kk_rct.move_ip(-sum_mv[0], 0)
-        if not tate: kk_rct.move_ip(0, -sum_mv[1])
+        if not yoko: 
+            kk_rct.move_ip(-sum_mv[0], 0)
+        if not tate: 
+            kk_rct.move_ip(0, -sum_mv[1])
+            
+        # 追加機能3
+        new_img = get_kk_img(tuple(sum_mv), kk_imgs)
+        if new_img:
+            kk_img = new_img
         
         #練習2
         bb_rct.move_ip(vx, vy)
