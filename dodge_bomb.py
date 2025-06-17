@@ -18,6 +18,7 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     引数：obj_rct ...こうかとんRect または 爆弾Rect
     戻り値：（横方向が画面内か、縦方向が画面内か）
     """
+    # 画面の境界を超えないかチェック
     yoko = 0 <= obj_rct.left and obj_rct.right <= WIDTH
     tate = 0 <= obj_rct.top and obj_rct.bottom <= HEIGHT
     return yoko, tate 
@@ -55,12 +56,14 @@ def game_over(screen: pg.Surface, bg: pg.Surface, kk_gameover: pg.Surface) -> No
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """半径10→55 の10段階爆弾 Surface と速度テーブルを返す"""
     imgs, accs = [], []
+    # 半径10から55まで5ずつ増やして画像を作成
     for i in range(10):
         r = 10 + 5*i                
         img = pg.Surface((r*2, r*2))
         pg.draw.circle(img, (255, 0, 0), (r, r), r)
         img.set_colorkey((0, 0, 0))
         imgs.append(img)
+        # 速度は半径の2倍に設定
         accs.append(5 + i)           
     return imgs, accs
 
@@ -70,6 +73,8 @@ def load_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
     """8 方向ベクトルに対応するこうかとん画像 Surface を辞書で返す。"""
     base = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     dct: dict[tuple[int, int], pg.Surface] = {(0, 0): base}
+    # このfor文は、8方向の角度とベクトルを対応させる。
+    # 90度、-90度、180度、45度、-45度、135度、-135度の角度で回転させた画像を作成
     for ang, vec in zip((90, -90, 180, 45, -45, 135, -135),
                         [(-5, 0), (5, 0), (0, 5), (-5, -5),
                          (5, -5), (-5, 5), (5, 5)]):
@@ -83,6 +88,7 @@ def get_kk_img(mv: tuple[int, int],
     """移動量 mv に最も近い方向画像を返す。mv が (0,0) なら None。"""
     if mv == (0, 0):
         return None
+    # ベクトルの大きさを計算
     best = max(dct.keys(), key=lambda v: v[0]*mv[0] + v[1]*mv[1])
     return dct[best]    
 
@@ -96,9 +102,12 @@ def calc_orientation(org: pg.Rect, dst: pg.Rect,
     距離が 300 未満なら cur_v をそのまま返し慣性を持たせる。
     """
     dx, dy = dst.centerx - org.centerx, dst.centery - org.centery
-    dist = math.hypot(dx, dy)
+    dist = math.hypot(dx, dy) 
+    # 距離が 300 未満なら慣性を持たせる
     if dist < 300 or dist == 0:
-        return cur_v
+        return cur_v 
+    # 距離が 300 以上なら、dx, dy を長さ √50 に正規化
+    # 50 は爆弾の移動速度の基準値
     scale = (50 ** 0.5) / dist
     return (int(dx * scale), int(dy * scale))
 
@@ -111,7 +120,9 @@ def draw_timer(screen: pg.Surface, tmr: int) -> None:
         経過フレーム数（1 フレーム ≒ 0.02 秒）
     """
     font = pg.font.SysFont(None, 40)
+    # フレーム数を秒に換算（50 フレームで 1 秒）
     sec  = tmr // 50                 
+    # 秒数を描画
     txt  = font.render(f"Time: {sec}", True, (0, 0, 0))
     screen.blit(txt, (WIDTH - 150, 10))
 
@@ -124,10 +135,12 @@ def title_screen(screen: pg.Surface, bg: pg.Surface) -> None:
     font = pg.font.SysFont(None, 100)
     msg  = font.render("Mr. Fushimi, press the SPACE!!", True, (0, 0, 255))
     msg_r = msg.get_rect(center=(WIDTH//2, HEIGHT//2))
+    # 背景画像を読み込み
     while True:
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 pg.quit(); sys.exit()
+            # SPACE キーが押されたらループを抜ける    
             if e.type == pg.KEYDOWN and e.key == pg.K_SPACE:
                 return                     
         screen.blit(bg, (0, 0))
@@ -149,6 +162,7 @@ def main() -> None:
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
       
+    # こうかとんの初期位置を設定  
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
@@ -162,6 +176,7 @@ def main() -> None:
     vx, vy = +5, +5
     
     # 追加機能1
+    # こうかとんの泣き顔画像を読み込み
     kk_cry = pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 0.9) 
     
     clock = pg.time.Clock()
@@ -177,6 +192,7 @@ def main() -> None:
         sum_mv = [0, 0]
         #練習1
         for k, mv in DELTA.items():
+            # キーが押されている場合、移動量を加算
             if key_lst[k]:
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
@@ -190,6 +206,7 @@ def main() -> None:
             kk_rct.move_ip(0, -sum_mv[1])
             
         # 追加機能3
+        # 移動量に応じてこうかとんの画像を更新
         new_img = get_kk_img(tuple(sum_mv), kk_imgs)
         if new_img:
             kk_img = new_img
@@ -216,7 +233,7 @@ def main() -> None:
         if vx or vy:
             scale = speed / math.hypot(vx, vy)
             vx, vy = int(vx*scale), int(vy*scale)
-            
+        # 爆弾の位置を更新    
         bb_rct = bb_img.get_rect(center=bb_rct.center)
         
         # 練習4
