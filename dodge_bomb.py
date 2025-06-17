@@ -140,6 +140,9 @@ def main():
         new_img = get_kk_img(tuple(sum_mv), kk_imgs)
         if new_img:
             kk_img = new_img
+            
+        # 追加機能4
+        vx, vy = calc_orientation(bb_rct, kk_rct, (vx, vy))    
         
         #練習2
         bb_rct.move_ip(vx, vy)
