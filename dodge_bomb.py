@@ -62,9 +62,10 @@ def main():
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
     #練習2
-    bb_img = pg.Surface((20, 20))
-    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)   
-    bb_img.set_colorkey((0, 0, 0))                      
+    #追加機能２
+    bb_imgs, bb_accs = init_bb_imgs()
+    bb_idx = 0
+    bb_img = bb_imgs[bb_idx]                    
     bb_rct = bb_img.get_rect(
         center=(random.randint(0, WIDTH), random.randint(0, HEIGHT)))
     vx, vy = +5, +5
