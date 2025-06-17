@@ -88,10 +88,13 @@ def main():
         
         # 練習4
         if kk_rct.colliderect(bb_rct):
+            # 追加機能1
+            game_over(screen, bg_img, kk_cry)
             return
         
         screen.blit(kk_img, kk_rct)
         screen.blit(bb_img, bb_rct)
+        
         pg.display.update()
         tmr += 1
         clock.tick(50)
