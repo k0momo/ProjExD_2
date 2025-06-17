@@ -37,15 +37,14 @@ def game_over(screen: pg.Surface, bg: pg.Surface, kk_gameover: pg.Surface) -> No
     txt_rct = txt.get_rect(center=(WIDTH // 2, HEIGHT // 2))
     screen.blit(txt, txt_rct)
 
-    margin = 140                        
+    margin = 45                        
     y_pos  = txt_rct.centery            
 
     left_rct = kk_gameover.get_rect(center=(txt_rct.left - margin, y_pos))
     screen.blit(kk_gameover, left_rct)
-
-    right_img  = pg.transform.flip(kk_gameover, True, False)
-    right_rct  = right_img.get_rect(center=(txt_rct.right + margin, y_pos))
-    screen.blit(right_img, right_rct)
+    
+    right_rct  = kk_gameover.get_rect(center=(txt_rct.right + margin, y_pos))
+    screen.blit(kk_gameover, right_rct)
         
     pg.display.update()
     time.sleep(5)
