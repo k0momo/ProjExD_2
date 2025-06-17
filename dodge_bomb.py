@@ -22,7 +22,7 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate 
 
 #追加機能1
-def game_over(screen: pg.Surface, bg: pg.Surface, kk_game_over: pg.Surface) -> None:
+def game_over(screen: pg.Surface, bg: pg.Surface, kk_gameover: pg.Surface) -> None:
     ovl = pg.Surface((WIDTH, HEIGHT))
     ovl.set_alpha(150)
     ovl.fill((0, 0, 0))
@@ -38,6 +38,20 @@ def game_over(screen: pg.Surface, bg: pg.Surface, kk_game_over: pg.Surface) -> N
     screen.blit(txt, txt_rct)
     pg.display.update()
     time.sleep(5)
+    
+#追加機能2
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """半径10→55 の10段階爆弾 Surface と速度テーブルを返す"""
+    imgs, accs = [], []
+    for i in range(10):
+        r = 10 + 5*i                 # 10,15,…55
+        img = pg.Surface((r*2, r*2))
+        pg.draw.circle(img, (255, 0, 0), (r, r), r)
+        img.set_colorkey((0, 0, 0))
+        imgs.append(img)
+        accs.append(5 + i)           # 速度 5→14
+    return imgs, accs
+    
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
