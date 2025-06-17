@@ -23,7 +23,8 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
-    bg_img = pg.image.load("fig/pg_bg.jpg")    
+    bg_img = pg.image.load("fig/pg_bg.jpg")  
+      
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
@@ -62,6 +63,10 @@ def main():
         yoko, tate = check_bound(bb_rct)
         if not yoko: vx *= -1
         if not tate: vy *= -1
+        
+        # 練習4
+        if kk_rct.colliderect(bb_rct):
+            return
         
         screen.blit(kk_img, kk_rct)
         screen.blit(bb_img, bb_rct)
