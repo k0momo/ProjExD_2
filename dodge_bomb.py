@@ -74,6 +74,12 @@ def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")  
+    
+    #追加機能３
+    kk_imgs = load_kk_imgs()
+    kk_img = kk_imgs[(0, 0)]
+    kk_rct = kk_img.get_rect()
+    kk_rct.center = 300, 200
       
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
