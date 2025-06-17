@@ -44,12 +44,12 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """半径10→55 の10段階爆弾 Surface と速度テーブルを返す"""
     imgs, accs = [], []
     for i in range(10):
-        r = 10 + 5*i                 # 10,15,…55
+        r = 10 + 5*i                
         img = pg.Surface((r*2, r*2))
         pg.draw.circle(img, (255, 0, 0), (r, r), r)
         img.set_colorkey((0, 0, 0))
         imgs.append(img)
-        accs.append(5 + i)           # 速度 5→14
+        accs.append(5 + i)           
     return imgs, accs
     
 
@@ -100,6 +100,17 @@ def main():
         yoko, tate = check_bound(bb_rct)
         if not yoko: vx *= -1
         if not tate: vy *= -1
+        
+        #追加機能２
+        bb_idx = min(tmr // 500, 9)          
+        bb_img = bb_imgs[bb_idx]
+        speed  = bb_accs[bb_idx]
+
+        if vx or vy:
+            scale = speed / math.hypot(vx, vy)
+            vx, vy = int(vx*scale), int(vy*scale)
+            
+        bb_rct = bb_img.get_rect(center=bb_rct.center)
         
         # 練習4
         if kk_rct.colliderect(bb_rct):
